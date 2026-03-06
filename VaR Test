@@ -1,0 +1,67 @@
+import numpy as np
+import pandas as pd
+import datetime as dt
+import random as rd
+import os
+import matplotlib.pyplot as plt
+
+def vol_and_expected_return_asset_historical():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    df = pd.read_csv(os.path.join(script_dir, '../data/AAPL_prices_5y_1d.csv'), skiprows=3, names=['Date', 'Close', 'High', 'Low', 'Open', 'Volume'])
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.set_index('Date', inplace=True)
+    prices = df['Close']
+    returns_historical = np.log(prices/prices.shift(1)).dropna()
+    mu_daily = returns_historical.mean()
+    vol_daily = returns_historical.std()
+    mu_year = mu_daily * 252
+    vol_year = vol_daily * np.sqrt(252)
+    return mu_daily, vol_daily, mu_year, vol_year, returns_historical
+
+mu_daily, vol_daily, mu_year, vol_year, returns_historical = vol_and_expected_return_asset_historical()
+
+def VaR_simulation(simulation, confidence):
+
+    #Simulation MC for the VaR simulated
+    daily_returns = mu_daily + vol_daily * np.random.normal(0,1,simulation)
+    alpha = 1 - confidence
+    
+    #Historical VaR
+    VaR_day_Historical = np.quantile(returns_historical, alpha)
+
+    VaR_day_MC = np.quantile(daily_returns, alpha)
+    Var_10_day_MC = VaR_day_MC * np.sqrt(10)
+    VaR_year_MC = VaR_day_MC * np.sqrt(252)
+
+    plt.hist(daily_returns, bins = 100, label = "Monte Carlo")
+    plt.axvline(VaR_day_MC, color = 'red')
+    plt.show()
+    
+    print(
+        'Historical VaR :', - VaR_day_Historical, '\n'
+        'Daily simulated VaR :', - VaR_day_MC, '\n'
+        '10 Days simulated VaR :',- Var_10_day_MC, '\n'
+        '1 Year simulated VaR :', - VaR_year_MC
+        )
+
+    return daily_returns, VaR_day_MC, VaR_day_Historical
+
+def Expected_Shortfall(daily_returns, VaR_day_MC, VaR_day_Historical):
+    ES_MC = - daily_returns[daily_returns < VaR_day_MC].mean()
+    ES_Historical = - returns_historical[returns_historical < VaR_day_Historical].mean()
+    print('The expected shortfall simulated is :', ES_MC, '\n'
+          'The expected shortfall historical is :', ES_Historical
+          )
+    return ES_MC, ES_Historical
+
+def Stress_Test_Historical() :
+    worst_day = returns_historical.min()
+    print("Historical worst daily return :", worst_day)
+    return worst_day
+
+
+
+daily_returns, VaR_day_MC, VaR_day_Historical = VaR_simulation(100000, 0.95)
+
+Expected_Shortfall(daily_returns, VaR_day_MC, VaR_day_Historical)
+Stress_Test_Historical()
