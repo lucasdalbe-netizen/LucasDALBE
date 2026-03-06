@@ -11,7 +11,7 @@ data_path = os.path.join(script_dir, '..', 'data', 'GOOGL_prices_5y_1d.csv')
 
 stock_data = pd.read_csv(data_path, skiprows=1)
 
-stock_prices = stock_data.iloc[:, 1].astype(float)  # Get the 2nd column, Price here
+stock_prices = stock_data.iloc[:, 1].astype(float)  # Get the 2nd column, the Price here
 
 log_returns = np.log(stock_prices / stock_prices.shift(1)).dropna()
 
