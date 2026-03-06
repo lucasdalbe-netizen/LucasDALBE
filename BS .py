@@ -10,11 +10,11 @@ vol = 0.4 #Volatility calculated
 
 def black_scholes(S, K, T, rf, vol) :
     d1 = (np.log(S / K) + (rf + 0.5 * vol ** 2) * T) / (vol * np.sqrt(T))
-    #d1 score ajuusté 
+    #d1 Adjusted score
     d2 = d1 - vol * np.sqrt(T)
-    #d2 représente la proba que l'option soit in the money à l'expiration
+    #d2 Probability that the option ends in the money
     
-    #Calcul prix d'un call/put avec loi normale cumulative
+    #Pricing of a Call or a Put using Normal distribution
     call_price = (S * si.norm.cdf(d1, 0.0, 1.0) - K * np.exp(-rf * T) * si.norm.cdf(d2, 0.0, 1.0))
     put_price = (K * np.exp(-rf * T) * si.norm.cdf(-d2, 0.0, 1.0) - S * si.norm.cdf(-d1, 0.0, 1.0))
     return call_price, put_price
