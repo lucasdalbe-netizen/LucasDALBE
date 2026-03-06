@@ -6,10 +6,12 @@ import os
 import matplotlib.pyplot as plt
 
 def vol_and_expected_return_asset_historical():
+    #Find the data to use
     script_dir = os.path.dirname(os.path.abspath(__file__))
     df = pd.read_csv(os.path.join(script_dir, '../data/AAPL_prices_5y_1d.csv'), skiprows=3, names=['Date', 'Close', 'High', 'Low', 'Open', 'Volume'])
     df['Date'] = pd.to_datetime(df['Date'])
     df.set_index('Date', inplace=True)
+    
     prices = df['Close']
     returns_historical = np.log(prices/prices.shift(1)).dropna()
     mu_daily = returns_historical.mean()
@@ -22,13 +24,14 @@ mu_daily, vol_daily, mu_year, vol_year, returns_historical = vol_and_expected_re
 
 def VaR_simulation(simulation, confidence):
 
+    #Historical VaR
+    VaR_day_Historical = np.quantile(returns_historical, alpha)
+    
     #Simulation MC for the VaR simulated
     daily_returns = mu_daily + vol_daily * np.random.normal(0,1,simulation)
     alpha = 1 - confidence
-    
-    #Historical VaR
-    VaR_day_Historical = np.quantile(returns_historical, alpha)
 
+    #Simulation VaR
     VaR_day_MC = np.quantile(daily_returns, alpha)
     Var_10_day_MC = VaR_day_MC * np.sqrt(10)
     VaR_year_MC = VaR_day_MC * np.sqrt(252)
@@ -47,7 +50,10 @@ def VaR_simulation(simulation, confidence):
     return daily_returns, VaR_day_MC, VaR_day_Historical
 
 def Expected_Shortfall(daily_returns, VaR_day_MC, VaR_day_Historical):
+    #On average what do we lose when a bad situation happen
+    #Simulated
     ES_MC = - daily_returns[daily_returns < VaR_day_MC].mean()
+    #Historical
     ES_Historical = - returns_historical[returns_historical < VaR_day_Historical].mean()
     print('The expected shortfall simulated is :', ES_MC, '\n'
           'The expected shortfall historical is :', ES_Historical
