@@ -1,18 +1,17 @@
 import os
-
 import numpy as np
 import pandas as pd
 import plotly.express as px
 
-sim_runs = 100000
+sim_runs = 100000 #The more the better
 initial_investment = 100000
-risk_free_rate = 0.02
-n_assets = 5
+risk_free_rate = 0.02 
+n_assets = 5 #available assets we can create the portfolio with
 
-# Assets returns
+# Generate random assets returns
 expected_returns = np.random.uniform(0.05, 0.15, n_assets)
 
-# Cov Matrix
+# Generate random cov matrix between the assets
 A = np.random.uniform(0.001, 0.05, (n_assets, n_assets))
 covariance_matrix = A @ A.T
 
@@ -63,7 +62,7 @@ results_df = pd.DataFrame({
     "weights": [np.round(w, 4).tolist() for w in weights_run],
 })
 
-#Efficient Markowitz Frontier
+#Efficient Markowitz Frontier, Best portfolio to create for each bin
 n_bins = 30
 results_df["vol_bin"] = pd.cut(results_df["volatility"], bins=n_bins)
 frontier = (
