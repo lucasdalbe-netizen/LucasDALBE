@@ -52,6 +52,12 @@ def RSI():
             pnl = 0
         Total_pnl = Total_pnl * (1+pnl)
     
+    #Buy and Hold comparison 
+    Buy_and_Hold = (df_appl.iloc[len(df_appl) - 1]['Price'] - df_appl.iloc[0]['Price']) / df_appl.iloc[0]['Price']
+
+
+    nb_Trades = (df_appl['Position'] != 0).sum()
+
     
     plt.plot(df_appl['Price'], label = 'Spot Price')
     plt.title("Apple Price")
@@ -66,10 +72,10 @@ def RSI():
     plt.savefig('RSI.png')
     plt.show()
 
-    Trades = (df_appl['Position'] != 0).sum()
-
-    print(Trades, " Trades have been made using RSI")
+    print(nb_Trades, " Trades have been made using RSI")
     print("Returns = ", Total_pnl - 1)
+    print("Returns Buy & Hold = ", Buy_and_Hold - 1)
+
     return Total_pnl
 
 RSI()
