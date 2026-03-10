@@ -79,6 +79,9 @@ def RSI():
         b = id_close_short[i]
         pnl = ((df_appl.iloc[a]['Price']/df_appl.iloc[b]['Price']) - 1)
         Total_pnl_short = Total_pnl_short * (1+pnl)
+
+    #Buy & Hold comparison
+    Buy_and_Hold = (df_appl.iloc[len(df_appl) - 1]['Price'] - df_appl.iloc[0]['Price']) / df_appl.iloc[0]['Price']
     
     #Plot
     plt.plot(df_appl['Price'], label = 'Spot Price')
@@ -101,6 +104,7 @@ def RSI():
     print(len(id_open_short), " Short trades")
     print("Returns long = ", Total_pnl_long - 1)
     print("Returns short = ", Total_pnl_short - 1)
+    print("Returns Buy & Hold = ", Buy_and_Hold - 1)
     return Total_pnl_long, Total_pnl_short
 
 RSI()
